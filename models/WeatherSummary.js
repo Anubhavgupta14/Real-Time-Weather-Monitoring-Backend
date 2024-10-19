@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const WeatherSummarySchema = new mongoose.Schema({
   city: { type: String, required: true },
   date: { type: Date, required: true },
+  temp_list: [Number],
   avgTemp: Number,
   maxTemp: Number,
   minTemp: Number,
@@ -12,7 +13,12 @@ const WeatherSummarySchema = new mongoose.Schema({
   dt:Number,
   humidity:Number,
   wind_speed:Number,
-  conditionFrequency: { type: Map, of: Number, default: {} },
+  conditionFrequency: [
+    {
+      condition: String,
+      count: Number,
+    },
+  ],
   dominantCondition: String,
 });
 

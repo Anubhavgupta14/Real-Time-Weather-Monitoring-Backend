@@ -25,7 +25,6 @@ const processWeatherData = async () => {
       const dt = data?.dt;
       const humidity = data?.humidity;
       const wind_speed = data?.wind?.speed;
-      const dominantCondition = getDominantCondition(data.weather[0]?.main);
 
       //   console.log(`City: ${city}, Temp: ${tempCelsius}°C, Condition: ${condition}`);
 
@@ -37,8 +36,7 @@ const processWeatherData = async () => {
         feels_like,
         dt,
         humidity,
-        wind_speed,
-        dominantCondition
+        wind_speed
       );
     }
   } catch (error) {
@@ -54,8 +52,7 @@ const updateDailySummary = async (
   feels_like,
   dt,
   humidity,
-  wind_speed,
-  dominantCondition
+  wind_speed
 ) => {
   const today = new Date().setHours(0, 0, 0, 0);
   let summary = await WeatherSummary.findOne({ city, date: today });
@@ -68,6 +65,7 @@ const updateDailySummary = async (
       avgTemp: temp,
       maxTemp: temp,
       minTemp: temp,
+      temp_list: [temp],
       count: 1,
       main: condition,
       feels_like: feels_like,
@@ -75,7 +73,7 @@ const updateDailySummary = async (
       humidity: humidity,
       wind_speed: wind_speed,
       dominantCondition: condition,
-      conditionFrequency: { [condition]: 1 },
+      conditionFrequency: [{ condition, count: 1 }],
     });
   } else {
     const currentAvgTemp = summary.avgTemp || 0;
@@ -104,13 +102,32 @@ const updateDailySummary = async (
     summary.humidity = humidity;
     summary.wind_speed = wind_speed;
 
-    // Update condition frequency in the hashmap
-    const conditionFreq = summary.conditionFrequency || {};
-    conditionFreq[condition] = (conditionFreq[condition] || 0) + 1;
-    summary.conditionFrequency = conditionFreq;
+    summary.conditionFrequency = summary.conditionFrequency || [];
+    const conditionIndex = summary.conditionFrequency.findIndex(
+      (entry) => entry.condition === condition
+    );
+
+    if (conditionIndex !== -1) {
+      // If condition already exists, increment its count
+      summary.conditionFrequency[conditionIndex].count += 1;
+    } else {
+      // If condition does not exist, add a new entry
+      summary.conditionFrequency.push({ condition, count: 1 });
+    }
 
     // Determine the new dominant condition
-    summary.dominantCondition = getDominantCondition(conditionFreq);
+    if (Array.isArray(summary.conditionFrequency)) {
+      // Determine the new dominant condition
+      summary.dominantCondition = getDominantCondition(
+        summary.conditionFrequency
+      );
+    } else {
+      console.error(
+        "Condition frequency is not an array:",
+        summary.conditionFrequency
+      );
+    }
+    summary.temp_list.push(temp);
 
     //   console.log(summary,"New data")
   }

@@ -3,23 +3,12 @@ const kelvinToCelsius = (temp) => {
   };
   
   const getDominantCondition = (conditionFrequency) => {
-    if (!conditionFrequency || Object.keys(conditionFrequency).length === 0) {
+    if (!conditionFrequency || conditionFrequency.length === 0) {
       return null;
     }
-    
-    // Convert the object to a Map
-    const conditionMap = new Map(Object.entries(conditionFrequency));
-    
-    // Find the condition with the highest frequency
-    let dominantCondition = null;
-    let maxCount = 0;
-    for (const [condition, count] of conditionMap.entries()) {
-      if (count > maxCount) {
-        maxCount = count;
-        dominantCondition = condition;
-      }
-    }
-    return dominantCondition;
+    return conditionFrequency.reduce((prev, current) =>
+      current.count > prev.count ? current : prev
+    ).condition;
   };
   
   module.exports = { kelvinToCelsius, getDominantCondition };
