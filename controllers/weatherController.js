@@ -23,10 +23,15 @@ const processWeatherData = async () => {
       const condition = data.weather[0]?.main;
       const feels_like = kelvinToCelsius(data?.main?.feels_like);
       const dt = data?.dt;
-      const humidity = data?.humidity;
+      const humidity = data?.main?.humidity;
       const wind_speed = data?.wind?.speed;
+      const currentTime = new Date();
+      const currentMinutes = currentTime.getMinutes();
+      const hour = currentTime.getHours();
 
-      //   console.log(`City: ${city}, Temp: ${tempCelsius}°C, Condition: ${condition}`);
+      // console.log(currentMinutes, currentTime)
+
+      //console.log(`City: ${city}, Temp: ${tempCelsius}°C, Condition: ${condition}, Humidity: ${humidity}`);
 
       // Add logic for rollups and aggregate summaries (you can track daily max/min/average)
       await updateDailySummary(
@@ -36,7 +41,9 @@ const processWeatherData = async () => {
         feels_like,
         dt,
         humidity,
-        wind_speed
+        wind_speed,
+        currentMinutes,
+        hour
       );
     }
   } catch (error) {
@@ -52,29 +59,49 @@ const updateDailySummary = async (
   feels_like,
   dt,
   humidity,
-  wind_speed
+  wind_speed,
+  currentMinutes,
+  hour
 ) => {
   const today = new Date().setHours(0, 0, 0, 0);
   let summary = await WeatherSummary.findOne({ city, date: today });
   // console.log(summary,"Summary")
 
   if (!summary) {
-    summary = new WeatherSummary({
-      city,
-      date: today,
-      avgTemp: temp,
-      maxTemp: temp,
-      minTemp: temp,
-      temp_list: [temp],
-      count: 1,
-      main: condition,
-      feels_like: feels_like,
-      dt: dt,
-      humidity: humidity,
-      wind_speed: wind_speed,
-      dominantCondition: condition,
-      conditionFrequency: [{ condition, count: 1 }],
-    });
+    if (currentMinutes == 0) {
+      summary = new WeatherSummary({
+        city,
+        date: today,
+        avgTemp: temp,
+        maxTemp: temp,
+        minTemp: temp,
+        temp_list: [{ temp: temp, time: hour }],
+        count: 1,
+        main: condition,
+        feels_like: feels_like,
+        dt: dt,
+        humidity: humidity,
+        wind_speed: wind_speed,
+        dominantCondition: condition,
+        conditionFrequency: [{ condition, count: 1 }],
+      });
+    } else {
+      summary = new WeatherSummary({
+        city,
+        date: today,
+        avgTemp: temp,
+        maxTemp: temp,
+        minTemp: temp,
+        count: 1,
+        main: condition,
+        feels_like: feels_like,
+        dt: dt,
+        humidity: humidity,
+        wind_speed: wind_speed,
+        dominantCondition: condition,
+        conditionFrequency: [{ condition, count: 1 }],
+      });
+    }
   } else {
     const currentAvgTemp = summary.avgTemp || 0;
     const currentCount = summary.count || 1;
@@ -127,21 +154,20 @@ const updateDailySummary = async (
         summary.conditionFrequency
       );
     }
-    summary.temp_list.push(temp);
+    if (currentMinutes == 0) {
+
+      summary.temp_list.push({ temp: temp, time: hour });
+    }
 
     //   console.log(summary,"New data")
   }
 
-  // Save the updated or new summary to the database
   await summary.save();
 };
 
-// Check for temperature alerts
 const checkAlerts = async (city, temp) => {
-  const threshold = 35; // Example threshold
   if (temp > threshold) {
     console.log(`Alert! Temperature in ${city} exceeded ${threshold}°C`);
-    // Add email alert logic here
   }
 };
 

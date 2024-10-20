@@ -1,18 +1,23 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const WeatherSummarySchema = new mongoose.Schema({
   city: { type: String, required: true },
   date: { type: Date, required: true },
-  temp_list: [Number],
+  temp_list: [
+    {
+      temp: { type: Number },
+      time: { type: String },
+    },
+  ],
   avgTemp: Number,
   maxTemp: Number,
   minTemp: Number,
   count: Number,
   main: String,
-  feels_like:String,
-  dt:Number,
-  humidity:Number,
-  wind_speed:Number,
+  feels_like: String,
+  dt: Number,
+  humidity: Number,
+  wind_speed: Number,
   conditionFrequency: [
     {
       condition: String,
@@ -22,4 +27,4 @@ const WeatherSummarySchema = new mongoose.Schema({
   dominantCondition: String,
 });
 
-module.exports = mongoose.model('WeatherSummary', WeatherSummarySchema);
+module.exports = mongoose.model("WeatherSummary", WeatherSummarySchema);
