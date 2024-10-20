@@ -72,6 +72,7 @@ const updateDailySummary = async (
       summary = new WeatherSummary({
         city,
         date: today,
+        temp: temp,
         avgTemp: temp,
         maxTemp: temp,
         minTemp: temp,
@@ -89,6 +90,7 @@ const updateDailySummary = async (
       summary = new WeatherSummary({
         city,
         date: today,
+        temp: temp,
         avgTemp: temp,
         maxTemp: temp,
         minTemp: temp,
@@ -124,6 +126,7 @@ const updateDailySummary = async (
     // Update dominant condition
     //   const conditions = [...summary.dominantCondition.split(','), condition];
     summary.main = condition;
+    summary.temp = temp;
     summary.feels_like = feels_like;
     summary.dt = dt;
     summary.humidity = humidity;

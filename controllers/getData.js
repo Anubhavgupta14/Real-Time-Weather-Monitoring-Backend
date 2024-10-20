@@ -7,7 +7,7 @@ exports.getData = async(req, res)=>{
             return res.status(400).json({ error: "Request body is missing" });
         }
         const {city} = req.body;
-        console.log(city)
+        // console.log(city)
         if (!city) {
             return res.status(400).json({ error: "City is required" });
         }

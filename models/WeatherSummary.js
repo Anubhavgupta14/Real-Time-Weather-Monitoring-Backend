@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const WeatherSummarySchema = new mongoose.Schema({
   city: { type: String, required: true },
   date: { type: Date, required: true },
+  temp: Number,
   temp_list: [
     {
       temp: { type: Number },
