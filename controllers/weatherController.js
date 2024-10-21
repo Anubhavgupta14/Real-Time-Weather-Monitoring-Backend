@@ -1,6 +1,7 @@
 const axios = require("axios");
 const WeatherSummary = require("../models/WeatherSummary");
 const { kelvinToCelsius, getDominantCondition } = require("../utils/helpers");
+const moment = require("moment-timezone");
 
 const cities = [
   "Delhi",
@@ -18,6 +19,7 @@ const processWeatherData = async () => {
       const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.API_KEY}`
       );
+      console.log(`Fetched for city: ${city}`)
       const data = response.data;
       const tempCelsius = kelvinToCelsius(data?.main?.temp);
       const condition = data.weather[0]?.main;
@@ -25,9 +27,10 @@ const processWeatherData = async () => {
       const dt = data?.dt;
       const humidity = data?.main?.humidity;
       const wind_speed = data?.wind?.speed;
-      const currentTime = new Date();
-      const currentMinutes = currentTime.getMinutes();
-      const hour = currentTime.getHours();
+
+      const currentTime = moment().tz("Asia/Kolkata");
+      const currentMinutes = currentTime.minutes();
+      const hour = currentTime.hours();
 
       // console.log(currentMinutes, currentTime)
 
@@ -63,7 +66,8 @@ const updateDailySummary = async (
   currentMinutes,
   hour
 ) => {
-  const today = new Date().setHours(0, 0, 0, 0);
+  const today = moment().tz("Asia/Kolkata").startOf("day").toDate();
+  // console.log(today, "Today in IST");
   let summary = await WeatherSummary.findOne({ city, date: today });
   // console.log(summary,"Summary")
 
@@ -158,7 +162,6 @@ const updateDailySummary = async (
       );
     }
     if (currentMinutes == 0) {
-
       summary.temp_list.push({ temp: temp, time: hour });
     }
 
