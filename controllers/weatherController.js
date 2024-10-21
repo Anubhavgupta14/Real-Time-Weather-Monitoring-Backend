@@ -171,10 +171,4 @@ const updateDailySummary = async (
   await summary.save();
 };
 
-const checkAlerts = async (city, temp) => {
-  if (temp > threshold) {
-    console.log(`Alert! Temperature in ${city} exceeded ${threshold}°C`);
-  }
-};
-
-module.exports = { processWeatherData, checkAlerts };
+module.exports = { processWeatherData };

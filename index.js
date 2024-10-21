@@ -5,6 +5,7 @@ const weatherRoutes = require("./routes/weatherRoutes");
 const getDataRoutes = require("./routes/getDataRoutes");
 const { processWeatherData } = require("./controllers/weatherController");
 const cors = require("cors");
+const moment = require("moment-timezone");
 
 dotenv.config();
 connectDB();
@@ -17,10 +18,10 @@ app.use("/api/weather", weatherRoutes);
 app.use("/api/getData", getDataRoutes);
 
 const checkAndFetchOnHour = () => {
-  const now = new Date();
-  const minutes = now.getMinutes();
-
-  if (minutes === 0) {
+  const currentTime = moment().tz("Asia/Kolkata");
+  const currentMinutes = currentTime.minutes();
+  console.log(currentMinutes,"mins")
+  if (currentMinutes === 0) {
     processWeatherData();
   }
 };
