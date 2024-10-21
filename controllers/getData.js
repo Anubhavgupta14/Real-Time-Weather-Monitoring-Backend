@@ -1,5 +1,6 @@
 const WeatherSummary = require("../models/WeatherSummary");
 const {convertDate} = require("../utils/helpers")
+const moment = require("moment-timezone");
 
 exports.getData = async(req, res)=>{
     try{
@@ -12,7 +13,7 @@ exports.getData = async(req, res)=>{
             return res.status(400).json({ error: "City is required" });
         }
         //here I want to fetch today's data so will use today date.
-        const today = new Date().setHours(0, 0, 0, 0);
+        const today = moment().tz("Asia/Kolkata").startOf("day").toDate();
         const data = await WeatherSummary.findOne({city, date:today});
 
         // console.log(data,"data");
