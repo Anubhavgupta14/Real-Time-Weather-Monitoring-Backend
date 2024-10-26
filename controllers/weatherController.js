@@ -161,7 +161,9 @@ const updateDailySummary = async (
         summary.conditionFrequency
       );
     }
-    if (currentMinutes == 0) {
+    const existingHourEntry = summary.temp_list.find((entry) => entry.time == hour);
+    // console.log(existingHourEntry,"exis")
+    if (!existingHourEntry) {
       summary.temp_list.push({ temp: temp, time: hour });
     }
 
